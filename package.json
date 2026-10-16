@@ -6,6 +6,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "admin": "node tools/admin/server.mjs",
+    "test:gating": "node --experimental-strip-types src/lib/gating.check.ts",
     "astro": "astro"
   },
   "dependencies": {

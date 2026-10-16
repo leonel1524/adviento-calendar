@@ -1,46 +1,58 @@
-# Astro Starter Kit: Basics
+# Calendario de Adviento 🎄
 
-```sh
-npm create astro@latest -- --template basics
-```
+Un calendario de adviento web para regalar: 24 cajitas que se van abriendo solas, una por
+día, hasta el 24 de diciembre.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Sitio: **https://leonel1524.github.io/adviento-calendar/**
 
-## 🚀 Project Structure
+## Cómo funciona
 
-Inside of your Astro project, you'll see the following folders and files:
+- Cada día se **desbloquea a las 9:00 a.m. hora de Venezuela** (UTC-4) del día que le toca en
+  diciembre. La regla vive en un solo lugar (`src/lib/gating.ts`) y se usa tanto al construir
+  el sitio como en el navegador.
+- Los días abiertos se recuerdan en el navegador (`localStorage`).
+- **Modo prueba**: `?unlock=all` en la URL abre los 24 días y muestra un banner.
+  Ej: https://leonel1524.github.io/adviento-calendar/calendar/?unlock=all
+
+## Comandos
+
+| Comando | Qué hace |
+| :--- | :--- |
+| `npm install` | Instala las dependencias |
+| `npm run dev` | Servidor de desarrollo en `localhost:4321` |
+| `npm run admin` | **Panel para editar los días** (ver `PANEL.md`) |
+| `npm run build` | Construye el sitio en `./dist/` |
+| `npm run preview` | Previsualiza la versión construida |
+| `npm run test:gating` | Pruebas de la regla de desbloqueo |
+
+## Estructura
 
 ```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+src/
+├── components/
+│   ├── Welcome.astro      # portada con la magia (nieve, estrellas, trineo)
+│   └── Grid.astro         # cajitas, modal y desbloqueo
+├── data/
+│   ├── days.json          # ← el contenido de los 24 días
+│   └── days.ts            # tipos + validación del contenido
+├── layouts/Layout.astro
+├── lib/
+│   ├── gating.ts          # cuándo se abre cada día
+│   ├── media.ts           # rutas de fotos/videos/audios y embeds
+│   └── paths.ts           # enlaces que respetan el `base`
+├── pages/
+│   ├── index.astro        # portada
+│   └── calendar.astro     # calendario
+└── styles/global.css      # tokens de diseño y estilos
+public/media/              # fotos, videos y audios que sube el panel
+tools/admin/               # el panel (no se publica)
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## Deploy
 
-## 🧞 Commands
+Automático a GitHub Pages en cada push a `main` (`.github/workflows/deploy.yml`).
+Alcanza con usar el botón **Publicar** del panel.
 
-All commands are run from the root of the project, from a terminal:
+## Pendientes
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Ver [`PENDIENTES.md`](./PENDIENTES.md) y la guía del panel en [`PANEL.md`](./PANEL.md).

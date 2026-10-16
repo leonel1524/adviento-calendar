@@ -1,285 +1,60 @@
+import raw from './days.json';
+
 export type ContentBlock =
-  | { type: 'text'; text: string }
-  | { type: 'image'; src: string; alt: string; caption?: string }
-  | { type: 'video'; src: string; poster?: string; label?: string }
-  | { type: 'audio'; src: string; label?: string };
+	| { type: 'text'; text: string }
+	| { type: 'image'; src: string; alt: string; caption?: string }
+	| { type: 'video'; src: string; poster?: string; label?: string }
+	| { type: 'audio'; src: string; label?: string };
 
 export interface AdvientoDay {
-  day: number;
-  title?: string;
-  blocks: ContentBlock[];
+	day: number;
+	title?: string;
+	blocks: ContentBlock[];
 }
 
-export const days: AdvientoDay[] = [
-  {
-    day: 1,
-    title: '¡Bienvenida, diciembre!',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Empieza el adviento. Hoy no se trata de regalos grandes, sino de abrir el corazón a lo que viene. Que este primer día te encuentre con calma y ganas de disfrutar lo sencillo.',
-      },
-    ],
-  },
-  {
-    day: 2,
-    title: 'Un abrazo pendiente',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Piensa en esa persona a la que hace tiempo no abrazas. Llámala, escríbele o dile lo que sientas cuando se vean. Un abrazo dice más que mil palabras.',
-      },
-    ],
-  },
-  {
-    day: 3,
-    title: 'Tu canción de diciembre',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Busca esa canción que te transporta a otra época. Ponla fuerte, cierra los ojos y déjala sonar. La música es una máquina del tiempo que siempre funciona.',
-      },
-      // Ejemplo de bloque mixto (descomenta y ajusta la ruta cuando tengas la imagen):
-      // {
-      //   type: 'image',
-      //   src: '/src/assets/tu-imagen-dia3.jpg',
-      //   alt: 'Disco de vinilo sobre una mesa de madera',
-      //   caption: 'Tu canción favorita, en vinilo.',
-      // },
-    ],
-  },
-  {
-    day: 4,
-    title: 'Música de fondo',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Pon esa canción que te alegra el día y canta a voz en cuello. Nadie te escucha, y si te escuchan, mejor.',
-      },
-    ],
-  },
-  {
-    day: 5,
-    title: 'Luz en la oscuridad',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Enciende una vela, apaga las luces y disfruta el instante. A veces la calma viene en silencio.',
-      },
-    ],
-  },
-  {
-    day: 6,
-    title: 'Mensaje para el futuro',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Escribe un deseo para el año que viene y guárdalo. Ya verás qué pasa cuando llegue diciembre del próximo año.',
-      },
-    ],
-  },
-  {
-    day: 7,
-    title: 'Descanso merecido',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Hoy no hay obligaciones. Date permiso de descansar, leer, dormir la siesta o simplemente no hacer nada.',
-      },
-    ],
-  },
-  {
-    day: 8,
-    title: 'Gracias por estar',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Piensa en una persona importante para ti y díselo. Un «gracias» nunca está de más.',
-      },
-    ],
-  },
-  {
-    day: 9,
-    title: 'Pequeños placeres',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Un chocolate caliente, una manta y una peli. Los placeres sencillos son los que más se recuerdan.',
-      },
-    ],
-  },
-  {
-    day: 10,
-    title: 'Caminata al aire libre',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Sal a caminar un rato, respira profundo y observa el cielo. La naturaleza también celebra estas fechas.',
-      },
-    ],
-  },
-  {
-    day: 11,
-    title: 'Juegos en familia',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Saca un juego de mesa, unas cartas o inventa uno. Ríete mucho hoy.',
-      },
-    ],
-  },
-  {
-    day: 12,
-    title: 'La mitad del camino',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Ya llevamos la mitad del adviento. Quédate con lo bueno de estas dos semanas y sigue adelante.',
-      },
-    ],
-  },
-  {
-    day: 13,
-    title: 'Sorpresa fotográfica',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Próximamente aquí habrá una foto especial. Mientras tanto, sonríe a la cámara.',
-      },
-    ],
-  },
-  {
-    day: 14,
-    title: 'Carta a Papá Noel',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Escribe esa carta que siempre quisiste. No importa si la envías o no; ponerlo por escrito ya vale la pena.',
-      },
-    ],
-  },
-  {
-    day: 15,
-    title: 'Sabores de siempre',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Prepara ese dulce o plato que solo se hace en estas fechas. El olor a canela ya está en el aire.',
-      },
-    ],
-  },
-  {
-    day: 16,
-    title: 'Noche de cuentos',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Busca un cuento de navidad y léelo en voz alta. Los cuentos nunca envejecen.',
-      },
-    ],
-  },
-  {
-    day: 17,
-    title: 'Decoración hecha a mano',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Haz un adorno con lo que tengas en casa. Imperfecto es hermoso, y hecho por vos es único.',
-      },
-    ],
-  },
-  {
-    day: 18,
-    title: 'Perdón y nuevo comienzo',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Si hay algo que te pesa, hoy es un buen día para soltar. Perdona a otros, perdónate a ti.',
-      },
-    ],
-  },
-  {
-    day: 19,
-    title: 'Baila en la cocina',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Pon música fuerte y baila mientras cocinas o ordenas. Nadie te ve, y si te ven, se unirán.',
-      },
-    ],
-  },
-  {
-    day: 20,
-    title: 'Mira las estrellas',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Sal a la noche, busca la luna y las estrellas. Pide un deseo en silencio.',
-      },
-    ],
-  },
-  {
-    day: 21,
-    title: 'Regala tu tiempo',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'El mejor regalo no se compra: es tu atención plena. Llama a alguien y escucha de verdad.',
-      },
-    ],
-  },
-  {
-    day: 22,
-    title: 'Última semana',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Queda poco para Navidad. Respira, no te apresures, disfruta cada paso.',
-      },
-    ],
-  },
-  {
-    day: 23,
-    title: 'Nochebuena se acerca',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Mañana es Nochebuena. Reúnete con quien amas, brinda y celebra lo que tienen.',
-      },
-    ],
-  },
-  {
-    day: 24,
-    title: '¡Feliz Navidad!',
-    blocks: [
-      {
-        type: 'text',
-        text:
-          'Llegamos al final del calendario. Gracias por abrir cada cajita. Que esta Navidad sea cálida, dulce y llena de amor. ¡Feliz Navidad!',
-      },
-    ],
-  },
-];
+const TIPOS_VALIDOS = ['text', 'image', 'video', 'audio'] as const;
+
+/**
+ * El contenido vive en `days.json` para que el panel de administración
+ * (`npm run admin`) pueda leerlo y escribirlo sin tocar código.
+ * Acá se valida para que un error de contenido se vea al construir y no
+ * como una cajita vacía en el calendario.
+ */
+function validar(valor: unknown): AdvientoDay[] {
+	if (!Array.isArray(valor)) {
+		throw new Error('days.json: se esperaba un array de días');
+	}
+
+	return valor.map((dia, i) => {
+		if (typeof dia !== 'object' || dia === null) {
+			throw new Error(`days.json: el día en la posición ${i} no es un objeto`);
+		}
+		const d = dia as Record<string, unknown>;
+		if (typeof d.day !== 'number') {
+			throw new Error(`days.json: falta el número de día en la posición ${i}`);
+		}
+		if (!Array.isArray(d.blocks)) {
+			throw new Error(`days.json: el día ${d.day} no tiene "blocks"`);
+		}
+		d.blocks.forEach((bloque, j) => {
+			const b = bloque as Record<string, unknown>;
+			if (typeof b?.type !== 'string') {
+				throw new Error(`days.json: el bloque ${j} del día ${d.day} no tiene "type"`);
+			}
+			if (!TIPOS_VALIDOS.includes(b.type as (typeof TIPOS_VALIDOS)[number])) {
+				throw new Error(
+					`days.json: el bloque ${j} del día ${d.day} tiene un tipo desconocido: "${b.type}"`
+				);
+			}
+			if (b.type === 'text' && typeof b.text !== 'string') {
+				throw new Error(`days.json: el bloque de texto ${j} del día ${d.day} no tiene "text"`);
+			}
+			if (b.type !== 'text' && typeof b.src !== 'string') {
+				throw new Error(`days.json: el bloque ${b.type} ${j} del día ${d.day} no tiene "src"`);
+			}
+		});
+		return d as unknown as AdvientoDay;
+	});
+}
+
+export const days: AdvientoDay[] = validar(raw);

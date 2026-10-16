@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Panel · Calendario de Adviento</title>
+		<style>
+			:root {
+				--bg: #0f172a;
+				--panel: #1e293b;
+				--panel-2: #273449;
+				--borde: #334155;
+				--texto: #e2e8f0;
+				--suave: #94a3b8;
+				--rojo: #dc2626;
+				--dorado: #d97706;
+				--verde: #16a34a;
+				--azul: #2563eb;
+				--radio: 10px;
+			}
+			* { box-sizing: border-box; }
+			html, body { height: 100%; margin: 0; }
+			body {
+				background: var(--bg);
+				color: var(--texto);
+				font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+				overflow: hidden;
+			}
+			button, input, textarea, select {
+				font: inherit;
+				color: inherit;
+			}
+			button { cursor: pointer; }
+
+			/* ---------- estructura ---------- */
+			.app { display: grid; grid-template-rows: auto 1fr; height: 100%; }
+			.cabecera {
+				display: flex; align-items: center; gap: 14px;
+				padding: 10px 16px; background: var(--panel);
+				border-bottom: 1px solid var(--borde);
+			}
+			.cabecera h1 { font-size: 15px; margin: 0; font-weight: 700; letter-spacing: -0.2px; }
+			.cabecera .punto { width: 8px; height: 8px; border-radius: 50%; background: var(--verde); }
+			.cabecera .info { color: var(--suave); font-size: 12px; }
+			.cabecera .espacio { flex: 1; }
+			.principal { display: grid; grid-template-columns: 250px 1fr 420px; min-height: 0; }
+			.columna { min-height: 0; overflow-y: auto; }
+			.col-dias { background: var(--panel); border-right: 1px solid var(--borde); }
+			.col-editor { padding: 18px 20px 60px; }
+			.col-preview { border-left: 1px solid var(--borde); background: var(--panel); display: flex; flex-direction: column; }
+			@media (max-width: 1250px) { .principal { grid-template-columns: 220px 1fr; } .col-preview { display: none; } }
+
+			/* ---------- botones ---------- */
+			.btn {
+				border: 1px solid var(--borde); background: var(--panel-2);
+				color: var(--texto); padding: 7px 12px; border-radius: 8px; font-size: 13px;
+			}
+			.btn:hover { background: #33425c; }
+			.btn-primario { background: var(--rojo); border-color: var(--rojo); color: #fff; font-weight: 600; }
+			.btn-primario:hover { background: #b91c1c; }
+			.btn-publicar { background: var(--verde); border-color: var(--verde); color: #fff; font-weight: 600; }
+			.btn-publicar:hover { background: #15803d; }
+			.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+			.btn-mini { padding: 3px 7px; font-size: 12px; border-radius: 6px; }
+			.btn-icono { padding: 4px 7px; font-size: 13px; line-height: 1; }
+
+			/* ---------- lista de dias ---------- */
+			.lista-dias { padding: 8px; }
+			.dia {
+				display: flex; align-items: center; gap: 10px; width: 100%;
+				padding: 8px 10px; border: 1px solid transparent; border-radius: 8px;
+				background: transparent; text-align: left; margin-bottom: 2px;
+			}
+			.dia:hover { background: var(--panel-2); }
+			.dia.activo { background: var(--panel-2); border-color: var(--rojo); }
+			.dia .num {
+				width: 30px; height: 30px; flex: none; border-radius: 8px;
+				background: var(--rojo); color: #fff; font-weight: 700; font-size: 13px;
+				display: flex; align-items: center; justify-content: center;
+			}
+			.dia .texto { min-width: 0; }
+			.dia .titulo { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+			.dia .meta { font-size: 11px; color: var(--suave); }
+			.progreso { padding: 10px 14px; border-bottom: 1px solid var(--borde); font-size: 12px; color: var(--suave); }
+			.progreso b { color: var(--texto); }
+
+			/* ---------- editor ---------- */
+			.titulo-seccion { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+			.titulo-seccion h2 { margin: 0; font-size: 18px; }
+			.campo { margin-bottom: 14px; }
+			.campo label { display: block; font-size: 12px; color: var(--suave); margin-bottom: 4px; }
+			.input, .area, .select {
+				width: 100%; background: var(--panel); border: 1px solid var(--borde);
+				border-radius: 8px; padding: 8px 10px;
+			}
+			.input:focus, .area:focus, .select:focus { outline: none; border-color: var(--dorado); }
+			.area { min-height: 90px; resize: vertical; line-height: 1.6; }
+			.area-corta { min-height: 52px; }
+			.ayuda { font-size: 11px; color: var(--suave); margin-top: 4px; }
+
+			.bloque {
+				background: var(--panel); border: 1px solid var(--borde);
+				border-radius: var(--radio); padding: 12px; margin-bottom: 12px;
+			}
+			.bloque-cabecera {
+				display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+			}
+			.etiqueta {
+				font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+				padding: 2px 8px; border-radius: 999px;
+			}
+			.etiqueta.text { background: #1e3a8a; color: #bfdbfe; }
+			.etiqueta.image { background: #14532d; color: #bbf7d0; }
+			.etiqueta.video { background: #7c2d12; color: #fed7aa; }
+			.etiqueta.audio { background: #4c1d95; color: #ddd6fe; }
+			.bloque-cabecera .espacio { flex: 1; }
+			.fila { display: flex; gap: 8px; align-items: flex-start; }
+			.fila > * { min-width: 0; }
+			.miniatura {
+				width: 100%; max-height: 190px; object-fit: cover;
+				border-radius: 8px; border: 1px solid var(--borde); margin-top: 8px; background: #000;
+			}
+			.agregar { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 26px; }
+			.vacio { color: var(--suave); font-size: 13px; }
+
+			/* ---------- media ---------- */
+			.galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
+			.galeria .item {
+				position: relative; border: 1px solid var(--borde); border-radius: 8px;
+				overflow: hidden; background: #000; aspect-ratio: 1; cursor: pointer;
+			}
+			.galeria .item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+			.galeria .item .tipo {
+				position: absolute; inset: 0; display: flex; align-items: center;
+				justify-content: center; font-size: 20px; background: #0b1220;
+			}
+			.galeria .item .nombre {
+				position: absolute; bottom: 0; left: 0; right: 0; font-size: 9px;
+				background: rgba(0, 0, 0, 0.75); padding: 2px 4px;
+				white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+			}
+
+			/* ---------- preview ---------- */
+			.preview-cabecera {
+				display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+				border-bottom: 1px solid var(--borde); font-size: 12px; color: var(--suave);
+			}
+			.preview-cabecera .espacio { flex: 1; }
+			.col-preview iframe { flex: 1; width: 100%; border: 0; background: #fff; }
+
+			/* ---------- modales y avisos ---------- */
+			.modal-fondo {
+				position: fixed; inset: 0; background: rgba(2, 6, 23, 0.7);
+				display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 50;
+			}
+			.modal {
+				background: var(--panel); border: 1px solid var(--borde); border-radius: 12px;
+				padding: 20px; width: min(620px, 100%); max-height: 85vh; overflow-y: auto;
+			}
+			.modal h3 { margin: 0 0 4px; font-size: 17px; }
+			.modal .acciones { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+			.registro {
+				background: #0b1220; border: 1px solid var(--borde); border-radius: 8px;
+				padding: 10px; font: 12px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+				white-space: pre-wrap; word-break: break-word; max-height: 240px; overflow-y: auto; margin-top: 12px;
+			}
+			.aviso { border-radius: 8px; padding: 8px 10px; font-size: 12px; margin-bottom: 8px; }
+			.aviso.error { background: #450a0a; color: #fecaca; border: 1px solid #7f1d1d; }
+			.aviso.ok { background: #052e16; color: #bbf7d0; border: 1px solid #166534; }
+			.aviso.warn { background: #451a03; color: #fed7aa; border: 1px solid #92400e; }
+			.aviso ul { margin: 6px 0 0 16px; padding: 0; }
+			.toasts {
+				position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+				display: flex; flex-direction: column; gap: 8px; z-index: 100; align-items: center;
+			}
+			.toast {
+				background: var(--panel-2); border: 1px solid var(--borde); border-radius: 999px;
+				padding: 9px 18px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+			}
+			.toast.ok { border-color: var(--verde); }
+			.toast.error { border-color: var(--rojo); }
+			.sucio { color: var(--dorado); font-size: 12px; }
+		</style>
+	</head>
+	<body>
+		<div class="app">
+			<header class="cabecera">
+				<span class="punto"></span>
+				<h1>Panel del calendario</h1>
+				<span class="info" id="info-repo">cargando…</span>
+				<span class="sucio" id="sucio"></span>
+				<span class="espacio"></span>
+				<button class="btn" id="btn-ver" title="Abrir el calendario en una pestaña nueva">Ver sitio</button>
+				<button class="btn btn-primario" id="btn-guardar" disabled>Guardar</button>
+				<button class="btn btn-publicar" id="btn-publicar" disabled>Publicar</button>
+			</header>
+
+			<div class="principal">
+				<aside class="columna col-dias">
+					<div class="progreso" id="progreso">—</div>
+					<div class="lista-dias" id="lista-dias"></div>
+				</aside>
+
+				<main class="columna col-editor" id="editor">
+					<p class="vacio">Elegí un día de la izquierda para editarlo.</p>
+				</main>
+
+				<section class="columna col-preview">
+					<div class="preview-cabecera">
+						<span>Vista previa (todo desbloqueado)</span>
+						<span class="espacio"></span>
+						<button class="btn btn-mini" id="btn-recargar">Recargar</button>
+					</div>
+					<iframe id="preview" title="Vista previa del calendario"></iframe>
+				</section>
+			</div>
+		</div>
+
+		<div class="toasts" id="toasts"></div>
+		<div id="capa-modal"></div>
+
+		<script>
+			// ------------------------------------------------------------------ estado
+			let dias = [];
+			let media = [];
+			let seleccion = null; // índice del día que se está editando
+			let sucio = false;
+			let previewBase = ''; // ej. http://localhost:4391/adviento-calendar
+			let limites = { maxMB: 95, avisoMB: 50 };
+
+			const $ = (sel) => document.querySelector(sel);
+			const el = (tag, props = {}, hijos = []) => {
+				const n = document.createElement(tag);
+				Object.assign(n, props);
+				for (const h of [].concat(hijos)) {
+					if (h == null) continue;
+					n.append(h.nodeType ? h : document.createTextNode(String(h)));
+				}
+				return n;
+			};
+
+			function aviso(texto, tipo = 'ok', ms = 2600) {
+				const t = el('div', { className: `toast ${tipo}`, textContent: texto });
+				$('#toasts').append(t);
+				setTimeout(() => t.remove(), ms);
+			}
+
+			async function api(ruta, opciones = {}) {
+				const r = await fetch(ruta, opciones);
+				const datos = await r.json().catch(() => ({}));
+				if (!r.ok) {
+					const err = new Error(datos.error || `Error ${r.status}`);
+					err.errores = datos.errores || [];
+					throw err;
+				}
+				return datos;
+			}
+
+			function marcarSucio(v = true) {
+				sucio = v;
+				$('#sucio').textContent = v ? '● cambios sin guardar' : '';
+				$('#btn-guardar').disabled = !v;
+			}
+
+			window.addEventListener('beforeunload', (e) => {
+				if (sucio) {
+					e.preventDefault();
+					e.returnValue = '';
+				}
+			});
+
+			// ------------------------------------------------------------------ carga
+			async function cargar() {
+				const estado = await api('/api/state');
+				dias = estado.dias;
+				media = estado.media;
+				previewBase = estado.previewBase || previewBase;
+				limites = estado.limites;
+				$('#info-repo').textContent =
+					`rama ${estado.git.rama}` +
+					(estado.git.pendientes?.length ? ` · ${estado.git.pendientes.length} archivo(s) con cambios` : ' · todo guardado');
+				dibujarLista();
+				marcarSucio(false);
+			}
+
+			function dibujarLista() {
+				const lista = $('#lista-dias');
+				lista.replaceChildren();
+
+				dias.forEach((d, i) => {
+					const tipos = [...new Set(d.blocks.map((b) => b.type))];
+					const boton = el('button', { className: `dia${seleccion === i ? ' activo' : ''}` }, [
+						el('span', { className: 'num', textContent: d.day }),
+						el('span', { className: 'texto' }, [
+							el('div', { className: 'titulo', textContent: d.title || '(sin título)' }),
+							el('div', {
+								className: 'meta',
+								textContent: `${d.blocks.length} bloque${d.blocks.length === 1 ? '' : 's'} · ${tipos.join(', ') || 'vacío'}`
+							})
+						])
+					]);
+					boton.onclick = () => seleccionar(i);
+					lista.append(boton);
+				});
+
+				const totalMedia = dias.flatMap((d) => d.blocks).filter((b) => b.type !== 'text').length;
+				const conMedia = dias.filter((d) => d.blocks.some((b) => b.type !== 'text')).length;
+				$('#progreso').replaceChildren(
+					el('span', {}, [
+						el('b', { textContent: `${dias.length}` }), ' días · ',
+						el('b', { textContent: `${totalMedia}` }), ' bloques multimedia · ',
+						el('b', { textContent: `${conMedia}` }), ' días con foto/video/audio'
+					])
+				);
+			}
+
+			function seleccionar(i) {
+				seleccion = i;
+				dibujarLista();
+				dibujarEditor();
+			}
+
+			// ------------------------------------------------------------------ editor
+			function cambiar(accion) {
+				accion();
+				marcarSucio();
+				dibujarEditor();
+			}
+
+			function dibujarEditor() {
+				const cont = $('#editor');
+				cont.replaceChildren();
+				if (seleccion === null) {
+					cont.append(el('p', { className: 'vacio', textContent: 'Elegí un día de la izquierda para editarlo.' }));
+					return;
+				}
+
+				const d = dias[seleccion];
+
+				cont.append(
+					el('div', { className: 'titulo-seccion' }, [
+						el('span', { className: 'num', textContent: d.day }),
+						el('h2', { textContent: `Día ${d.day} de diciembre` })
+					])
+				);
+
+				// título
+				const inputTitulo = el('input', { className: 'input', value: d.title || '', placeholder: 'Título del día' });
+				inputTitulo.oninput = () => cambiar(() => (d.title = inputTitulo.value));
+				cont.append(el('div', { className: 'campo' }, [el('label', { textContent: 'Título' }), inputTitulo]));
+
+				// bloques
+				d.blocks.forEach((b, j) => cont.append(bloqueUI(d, b, j)));
+
+				// agregar
+				cont.append(
+					el('div', { className: 'agregar' }, [
+						botonAgregar('+ Texto', () => ({ type: 'text', text: '' }), d),
+						botonAgregar('+ Foto', () => ({ type: 'image', src: '', alt: '' }), d),
+						botonAgregar('+ Video', () => ({ type: 'video', src: '' }), d),
+						botonAgregar('+ Audio', () => ({ type: 'audio', src: '' }), d)
+					])
+				);
+
+				// biblioteca de archivos
+				cont.append(galeriaUI());
+			}
+
+			function botonAgregar(texto, crear, d) {
+				const b = el('button', { className: 'btn', textContent: texto });
+				b.onclick = () => {
+					d.blocks.push(crear());
+					cambiar(() => {});
+				};
+				return b;
+			}
+
+			function bloqueUI(d, b, j) {
+				const cab = el('div', { className: 'bloque-cabecera' }, [
+					el('span', { className: `etiqueta ${b.type}`, textContent: b.type }),
+					el('span', { className: 'espacio' }),
+					botonIcono('↑', 'Subir', j === 0, () =>
+						cambiar(() => {
+							[d.blocks[j - 1], d.blocks[j]] = [d.blocks[j], d.blocks[j - 1]];
+						})
+					),
+					botonIcono('↓', 'Bajar', j === d.blocks.length - 1, () =>
+						cambiar(() => {
+							[d.blocks[j + 1], d.blocks[j]] = [d.blocks[j], d.blocks[j + 1]];
+						})
+					),
+					botonIcono('⧉', 'Duplicar', false, () =>
+						cambiar(() => d.blocks.splice(j + 1, 0, JSON.parse(JSON.stringify(b))))
+					),
+					botonIcono('🗑', 'Borrar', false, () => {
+						if (d.blocks.length === 1) return aviso('Cada día necesita al menos un bloque', 'error');
+						cambiar(() => d.blocks.splice(j, 1));
+					})
+				]);
+
+				const cuerpo = el('div', {});
+				const bloque = el('div', { className: 'bloque' }, [cab, cuerpo]);
+
+				if (b.type === 'text') {
+					const area = el('textarea', { className: 'area', value: b.text, placeholder: 'Escribí el mensaje del día…' });
+					area.oninput = () => cambiar(() => (b.text = area.value));
+					cuerpo.append(el('div', { className: 'campo' }, [area]));
+				}
+
+				if (b.type === 'image') {
+					cuerpo.append(campoArchivo(d, b, 'src', 'Foto', 'image'));
+					const alt = el('input', { className: 'input', value: b.alt || '', placeholder: 'Describí la foto (por accesibilidad)' });
+					alt.oninput = () => cambiar(() => (b.alt = alt.value));
+					cuerpo.append(el('div', { className: 'campo' }, [el('label', { textContent: 'Descripción (alt)' }), alt]));
+					const cap = el('input', { className: 'input', value: b.caption || '', placeholder: 'Texto debajo de la foto (opcional)' });
+					cap.oninput = () => cambiar(() => (b.caption = cap.value || undefined));
+					cuerpo.append(el('div', { className: 'campo' }, [el('label', { textContent: 'Pie de foto' }), cap]));
+					if (b.src) cuerpo.append(el('img', { className: 'miniatura', src: urlMedia(b.src), alt: b.alt || '' }));
+				}
+
+				if (b.type === 'video') {
+					cuerpo.append(
+						campoArchivo(d, b, 'src', 'Video', 'video', { permiteUrl: true, ayuda: 'Archivo propio, o un enlace de YouTube/Vimeo para videos largos.' })
+					);
+					cuerpo.append(campoArchivo(d, b, 'poster', 'Imagen de portada (opcional)', 'image'));
+					const lab = el('input', { className: 'input', value: b.label || '', placeholder: 'Texto debajo del video (opcional)' });
+					lab.oninput = () => cambiar(() => (b.label = lab.value || undefined));
+					cuerpo.append(el('div', { className: 'campo' }, [el('label', { textContent: 'Etiqueta' }), lab]));
+					if (b.src && !/^https?:/i.test(b.src)) cuerpo.append(el('video', { className: 'miniatura', src: urlMedia(b.src), controls: true }));
+					else if (b.src) cuerpo.append(el('div', { className: 'ayuda', textContent: `Enlace: ${b.src}` }));
+				}
+
+				if (b.type === 'audio') {
+					cuerpo.append(campoArchivo(d, b, 'src', 'Audio', 'audio', { permiteUrl: true }));
+					const lab = el('input', { className: 'input', value: b.label || '', placeholder: 'Texto debajo del audio (opcional)' });
+					lab.oninput = () => cambiar(() => (b.label = lab.value || undefined));
+					cuerpo.append(el('div', { className: 'campo' }, [el('label', { textContent: 'Etiqueta' }), lab]));
+					if (b.src && !/^https?:/i.test(b.src)) cuerpo.append(el('audio', { className: 'miniatura', src: urlMedia(b.src), controls: true }));
+				}
+
+				// marca visual del campo que va a recibir el próximo clic de la galería
+				if (ultimoCampo && ultimoCampo.bloque === b) {
+					bloque.dataset.recibeGaleria = '1';
+					bloque.style.borderColor = 'var(--dorado)';
+				}
+
+				return bloque;
+			}
+
+			function botonIcono(texto, titulo, deshabilitado, accion) {
+				const b = el('button', { className: 'btn btn-icono', textContent: texto, title: titulo, disabled: deshabilitado });
+				b.onclick = accion;
+				return b;
+			}
+
+			function urlMedia(src) {
+				if (/^https?:/i.test(src)) return src;
+				return '/' + src.replace(/^\/+/, '');
+			}
+
+			/** Campo con input de texto + botón de subida + (opcional) galería. */
+			function campoArchivo(d, b, clave, etiqueta, tipoEsperado, opciones = {}) {
+				const entrada = el('input', { className: 'input', value: b[clave] || '', placeholder: opciones.permiteUrl ? 'media/archivo.mp4 o https://…' : 'media/archivo.jpg' });
+				entrada.oninput = () => cambiar(() => (b[clave] = entrada.value || undefined));
+				// Recordar este campo para que un clic en la galería inserte acá
+				entrada.onfocus = () => (ultimoCampo = { bloque: b, clave });
+				entrada.onclick = () => (ultimoCampo = { bloque: b, clave });
+
+				const archivo = el('input', { type: 'file', style: 'display:none' });
+				if (tipoEsperado === 'image') archivo.accept = 'image/*';
+				if (tipoEsperado === 'video') archivo.accept = 'video/*';
+				if (tipoEsperado === 'audio') archivo.accept = 'audio/*';
+
+				archivo.onchange = async () => {
+					const f = archivo.files?.[0];
+					if (!f) return;
+					const mb = f.size / 1024 / 1024;
+					if (mb > limites.maxMB) {
+						aviso(`El archivo pesa ${mb.toFixed(1)} MB y el máximo es ${limites.maxMB} MB`, 'error', 5000);
+						return;
+					}
+					aviso(`Subiendo ${f.name}…`, 'ok', 2000);
+					try {
+						const res = await fetch(
+							`/api/upload?nombre=${encodeURIComponent(f.name)}&dia=${d.day}`,
+							{ method: 'POST', body: f }
+						);
+						const datos = await res.json();
+						if (!res.ok) throw new Error(datos.error || 'No se pudo subir');
+						b[clave] = datos.ruta;
+						if (tipoEsperado === 'image' && b.type === 'image' && (!b.alt || !b.alt.trim())) {
+							b.alt = f.name.replace(/\.[a-z0-9]+$/i, '').replace(/[-_]+/g, ' ');
+						}
+						media = datos.media || media;
+						if (datos.aviso) aviso(datos.aviso, 'warn', 7000);
+						else aviso('Archivo subido', 'ok');
+						marcarSucio();
+						dibujarEditor();
+						dibujarGaleriaGlobal();
+					} catch (e) {
+						aviso(e.message, 'error', 6000);
+					}
+				};
+
+				const boton = el('button', { className: 'btn', textContent: 'Subir archivo' });
+				boton.onclick = () => archivo.click();
+
+				const fila = el('div', { className: 'fila' }, [entrada, boton, archivo]);
+				return el('div', { className: 'campo' }, [
+					el('label', { textContent: etiqueta }),
+					fila,
+					opciones.ayuda ? el('div', { className: 'ayuda', textContent: opciones.ayuda }) : null
+				]);
+			}
+
+			let contenedorGaleria = null;
+			let ultimoCampo = null; // { bloque, clave } que recibe el clic de la galería
+			function galeriaUI() {
+				contenedorGaleria = el('div', {});
+				dibujarGaleriaGlobal();
+				return el('div', { className: 'campo' }, [
+					el('label', { textContent: `Archivos subidos (${media.length})` }),
+					el('div', {
+						className: 'ayuda',
+						textContent:
+							'Viven en public/media/. Hacé clic en uno para usarlo en el bloque que estés editando (el último campo de archivo que tocaste).'
+					}),
+					contenedorGaleria
+				]);
+			}
+
+			function dibujarGaleriaGlobal() {
+				if (!contenedorGaleria) return;
+				contenedorGaleria.replaceChildren();
+				if (!media.length) {
+					contenedorGaleria.append(el('p', { className: 'vacio', textContent: 'Todavía no subiste archivos.' }));
+					return;
+				}
+				const g = el('div', { className: 'galeria' });
+				for (const m of media) {
+					const iconos = { image: '🖼', video: '🎬', audio: '🎵', otro: '📦' };
+					const item = el('div', { className: 'item', title: `${m.ruta} · ${(m.bytes / 1024 / 1024).toFixed(1)} MB` }, [
+						m.tipo === 'image'
+							? el('img', { src: urlMedia(m.ruta), alt: m.nombre })
+							: el('div', { className: 'tipo', textContent: iconos[m.tipo] || '📦' }),
+						el('div', { className: 'nombre', textContent: m.nombre })
+					]);
+					item.onclick = () => {
+						// Si el bloque que estamos editando tiene ese mismo tipo, lo usamos directo
+						const d = seleccion !== null ? dias[seleccion] : null;
+						const compatible = ultimoCampo && d && d.blocks.includes(ultimoCampo.bloque);
+						if (compatible && ultimoCampo.clave) {
+							ultimoCampo.bloque[ultimoCampo.clave] = m.ruta;
+							marcarSucio();
+							dibujarEditor();
+							aviso(`Usado en el bloque: ${m.ruta}`, 'ok');
+						} else {
+							aviso(`Seleccioná primero el bloque donde va, o pegá: ${m.ruta}`, 'warn', 4500);
+						}
+					};
+					item.oncontextmenu = async (e) => {
+						e.preventDefault();
+						if (confirm(`¿Borrar ${m.nombre}?`)) {
+							await api('/api/media/delete', {
+								method: 'POST',
+								headers: { 'Content-Type': 'application/json' },
+								body: JSON.stringify({ ruta: m.ruta })
+							});
+							media = (await api('/api/state')).media;
+							aviso('Archivo borrado', 'ok');
+							dibujarEditor();
+						}
+					};
+					g.append(item);
+				}
+				contenedorGaleria.append(g);
+			}
+
+			// ------------------------------------------------------------------ guardar / publicar
+			async function guardar(silencioso = false) {
+				try {
+					const res = await api('/api/days', {
+						method: 'PUT',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ dias })
+					});
+					marcarSucio(false);
+					media = res.media || media;
+					if (!silencioso) aviso(res.sinCambios ? 'Sin cambios que guardar' : 'Contenido guardado', 'ok');
+					if (res.avisos?.length) {
+						aviso(`Ojo: faltan archivos → ${res.avisos.join(' · ')}`, 'warn', 8000);
+					}
+					if (!silencioso) recargarPreview();
+					const estado = await api('/api/state');
+					$('#info-repo').textContent = `rama ${estado.git.rama}`;
+					dibujarLista();
+					return true;
+				} catch (e) {
+					const lista = (e.errores || []).map((x) => `• ${x}`).join('\n');
+					aviso(`${e.message}${lista ? ' → ' + (e.errores || []).join(' · ') : ''}`, 'error', 9000);
+					return false;
+				}
+			}
+
+			function recargarPreview() {
+				if (!previewBase) return;
+				$('#preview').src = `${previewBase}/calendar/?unlock=all&t=${Date.now()}`;
+			}
+
+			async function publicar() {
+				if (sucio) {
+					const ok = await guardar(true);
+					if (!ok) return;
+				}
+
+				const capa = $('#capa-modal');
+				capa.replaceChildren();
+
+				const mensaje = el('input', {
+					className: 'input',
+					placeholder: 'content: actualizar calendario'
+				});
+				const registro = el('div', { className: 'registro', style: 'display:none' });
+				const cancelar = el('button', { className: 'btn', textContent: 'Cancelar' });
+				const empujar = el('button', { className: 'btn btn-publicar', textContent: 'Publicar ahora' });
+
+				const modal = el('div', { className: 'modal' }, [
+					el('h3', { textContent: 'Publicar cambios' }),
+					el('p', {
+						className: 'ayuda',
+						textContent:
+							'Hace commit de todo lo que haya pendiente en el repo, lo sube a GitHub y el sitio se re-despliega solo (tarda ~1 minuto).'
+					}),
+					el('div', { className: 'campo', style: 'margin-top:12px' }, [
+						el('label', { textContent: 'Mensaje del commit (opcional)' }),
+						mensaje
+					]),
+					registro,
+					el('div', { className: 'acciones' }, [cancelar, empujar])
+				]);
+				capa.append(el('div', { className: 'modal-fondo' }, [modal]));
+
+				cancelar.onclick = () => capa.replaceChildren();
+
+				empujar.onclick = async () => {
+					cancelar.disabled = true;
+					empujar.disabled = true;
+					empujar.textContent = 'Publicando…';
+					registro.style.display = 'block';
+					registro.textContent = 'Ejecutando git add / commit / push…';
+					try {
+						const res = await api('/api/publish', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ mensaje: mensaje.value })
+						});
+						if (res.nada) {
+							registro.textContent = 'No hay nada nuevo para publicar.';
+							aviso('No había cambios', 'ok');
+						} else {
+							registro.textContent =
+								res.pasos.join('\n') +
+								(res.empujado
+									? '\n\n✅ Subido. El sitio se actualiza en ~1 minuto.'
+									: '\n\n⚠️ El commit quedó hecho pero el push falló (revisá conexión o permisos de GitHub).');
+							aviso(res.empujado ? 'Publicado' : 'Commit hecho, push falló', res.empujado ? 'ok' : 'error', 5000);
+						}
+						const estado = await api('/api/state');
+						$('#info-repo').textContent = `rama ${estado.git.rama} · todo guardado`;
+					} catch (e) {
+						const lista = (e.errores || []).map((x) => `• ${x}`).join('\n');
+						registro.textContent = `Error: ${e.message}${lista ? '\n' + lista : ''}`;
+						aviso(e.message, 'error', 6000);
+					} finally {
+						cancelar.disabled = false;
+						cancelar.textContent = 'Cerrar';
+						empujar.remove();
+					}
+				};
+			}
+
+			// ------------------------------------------------------------------ eventos
+			$('#btn-guardar').onclick = () => guardar();
+			$('#btn-publicar').onclick = publicar;
+			$('#btn-recargar').onclick = recargarPreview;
+			$('#btn-ver').onclick = () => {
+				if (previewBase) window.open(`${previewBase}/calendar/?unlock=all`, '_blank');
+				else aviso('La vista previa todavía no está lista', 'warn');
+			};
+
+			document.addEventListener('keydown', (e) => {
+				if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+					e.preventDefault();
+					if (sucio) guardar();
+				}
+				if (e.key === 'Escape') $('#capa-modal').replaceChildren();
+			});
+
+			/** El servidor de Astro puede tardar en arrancar: esperamos a que responda. */
+			async function esperarDev(intentos = 40) {
+				for (let i = 0; i < intentos; i++) {
+					try {
+						const estado = await api('/api/state');
+						if (estado.devListo && estado.previewBase) {
+							previewBase = estado.previewBase;
+							// La sonda no-cors resuelve ante cualquier respuesta HTTP (incluso 404)
+							await fetch(`${previewBase}/`, { mode: 'no-cors', cache: 'no-store' });
+							return true;
+						}
+					} catch {
+						/* el servidor todavía no responde */
+					}
+					await new Promise((r) => setTimeout(r, 800));
+				}
+				return false;
+			}
+
+			cargar()
+				.then(async () => {
+					if (await esperarDev()) recargarPreview();
+					else aviso('La vista previa no respondió. Revisá que `npm run dev` esté activo.', 'warn', 8000);
+				})
+				.catch((e) => aviso(`No se pudo cargar el estado: ${e.message}`, 'error', 9000));
+		</script>
+	</body>
+</html>

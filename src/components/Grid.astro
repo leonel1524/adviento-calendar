@@ -79,6 +79,7 @@ const { days } = Astro.props;
 
 <script>
 	import { isDayUnlocked, unlockMoment } from '../lib/gating';
+	import { resolveMediaSrc, toVideoEmbed } from '../lib/media';
 
 	const daysDataEl = document.getElementById('adviento-days');
 	const days = daysDataEl ? JSON.parse(daysDataEl.textContent || '[]') : [];
@@ -167,8 +168,13 @@ const { days } = Astro.props;
 				const figure = document.createElement('figure');
 				figure.className = 'my-4';
 				const img = document.createElement('img');
-				img.src = block.src;
+				img.src = resolveMediaSrc(block.src);
 				img.alt = block.alt;
+				// El modal se construye al abrirlo, así que no hace falta cargar
+				// con retraso… y con `lazy` la imagen puede no cargar nunca si el
+				// contenedor está oculto en el momento de insertarla.
+				img.loading = 'eager';
+				img.decoding = 'async';
 				img.className =
 					'w-full max-w-md mx-auto rounded-xl border border-border shadow-sm';
 				figure.appendChild(img);
@@ -181,18 +187,54 @@ const { days } = Astro.props;
 				}
 				modalContent.appendChild(figure);
 			} else if (block.type === 'video') {
-				const video = document.createElement('video');
-				video.controls = true;
-				video.src = block.src;
-				if (block.poster) video.poster = block.poster;
-				video.className = 'w-full max-w-md mx-auto rounded-xl border border-border';
-				modalContent.appendChild(video);
+				const embed = toVideoEmbed(block.src);
+				if (embed) {
+					// YouTube / Vimeo: no se pueden reproducir con <video>
+					const wrapper = document.createElement('div');
+					wrapper.className =
+						'relative w-full max-w-md mx-auto aspect-video rounded-xl border border-border overflow-hidden';
+					const iframe = document.createElement('iframe');
+					iframe.src = embed;
+					iframe.className = 'absolute inset-0 w-full h-full';
+					iframe.setAttribute('allowfullscreen', '');
+					iframe.setAttribute(
+						'allow',
+						'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+					);
+					iframe.title = block.label || 'Video';
+					wrapper.appendChild(iframe);
+					modalContent.appendChild(wrapper);
+				} else {
+					const video = document.createElement('video');
+					video.controls = true;
+					video.preload = 'metadata';
+					video.src = resolveMediaSrc(block.src);
+					if (block.poster) video.poster = resolveMediaSrc(block.poster);
+					video.className =
+						'w-full max-w-md mx-auto rounded-xl border border-border';
+					modalContent.appendChild(video);
+				}
+				if (block.label) {
+					const label = document.createElement('p');
+					label.textContent = block.label;
+					label.className =
+						'text-center text-sm text-muted-foreground mt-2';
+					modalContent.appendChild(label);
+				}
 			} else if (block.type === 'audio') {
 				const audio = document.createElement('audio');
 				audio.controls = true;
-				audio.src = block.src;
+				audio.preload = 'metadata';
+				audio.src = resolveMediaSrc(block.src);
 				audio.className = 'w-full max-w-md mx-auto';
 				modalContent.appendChild(audio);
+				if (block.label) {
+					const label = document.createElement('p');
+					label.textContent = block.label;
+					label.className =
+						'text-center text-sm text-muted-foreground mt-2';
+					modalContent.appendChild(label);
+				}
 			}
 		});
 	}

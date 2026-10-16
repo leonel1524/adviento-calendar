@@ -2,13 +2,21 @@
 
 Estado del proyecto y cosas por hacer. Lo de arriba es lo más importante.
 
-## 1. Contenido de los días (lo que falta para que el regalo esté completo)
+## 1. Contenido de los días
 
-- [ ] Escribir el contenido de los **días 4 a 19** en `src/data/days.ts` (las 16 ideas de la nota de Keep).
-- [ ] Decidir qué va en los **días 20 a 24** (falta definirlos).
-- [ ] Revisar los días 1 a 3 ya escritos y sus bloques de contenido.
+- [x] Los **24 días ya tienen contenido** (título + un bloque de texto) en `src/data/days.json`.
+- [ ] **Agregar fotos y videos** a los días que lo pidan, con el panel: `npm run admin` (ver `PANEL.md`).
+- [ ] Revisar los textos y ajustar lo que haga falta (son los que están en la nota de Keep).
+- [ ] Decidir si los días 20 a 24 llevan algo especial (hoy tienen el mismo formato que el resto).
 
-## 2. Ofuscar el contenido: moverlo a un servicio externo
+## 2. Panel de administración: hecho ✅
+
+- [x] Panel local para editar el contenido sin tocar código (`npm run admin`). No se publica.
+- [x] Subida de archivos a `public/media/`, embeds de YouTube/Vimeo y vista previa en vivo.
+- [x] Botón **Publicar** (commit + push) que dispara el deploy.
+- [x] El contenido pasó de `src/data/days.ts` a `src/data/days.json` (con validación al construir).
+
+## 3. Ofuscar el contenido: moverlo a un servicio externo
 
 Hoy el gating (que un día esté bloqueado o no) se resuelve **en el navegador**, así que el
 contenido de **los 24 días viaja completo en el HTML** de `/calendar/`. Cualquiera puede
@@ -28,7 +36,7 @@ Opciones para que no se pueda espiar el regalo:
 - [ ] Cualquiera de estas opciones además **arregla otro detalle**: hoy se puede engañar el
       desbloqueo cambiando la hora del sistema (o el reloj del navegador).
 
-## 3. Detalles menores
+## 4. Detalles menores
 
 - [ ] Decidir qué hacer con `src/assets/sleigh2.png` (imagen de trineo descartada, hoy sin uso).
 - [ ] Borrar `src/assets/astro.svg` y `src/assets/background.svg` si no se usan.
@@ -39,6 +47,12 @@ Opciones para que no se pueda espiar el regalo:
 
 ## Notas de comportamiento actual
 
+- **Panel**: `npm run admin` abre el editor local en http://localhost:4400 (ver `PANEL.md`).
+- **Contenido**: vive en `src/data/days.json`. El panel lo lee y lo escribe; `src/data/days.ts`
+  lo valida y lo expone tipado.
+- **Medios**: los archivos van en `public/media/` y se referencian como `media/nombre.jpg`
+  (la barra del `base` la agrega `src/lib/media.ts`). Los enlaces de YouTube/Vimeo se incrustan
+  con `iframe`; los archivos propios se reproducen con `<video>`/`<audio>`.
 - **Desbloqueo**: cada día se abre a las **9:00 a.m. hora de Venezuela** (VET, UTC-4) del día
   que le corresponde en diciembre de 2026. Se calcula como un instante UTC fijo
   (`src/lib/gating.ts`), así que es igual sin importar desde qué país se visite.
