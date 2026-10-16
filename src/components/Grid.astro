@@ -1,15 +1,11 @@
 ---
+import { isDayUnlocked, unlockMoment } from '../lib/gating';
+
 interface Props {
 	days: import('../data/days').AdvientoDay[];
 }
 
 const { days } = Astro.props;
-
-function isUnlocked(day: number): boolean {
-	const now = new Date();
-	const unlock = new Date(now.getFullYear(), 11, day); // diciembre = mes 11
-	return now >= unlock;
-}
 ---
 
 <div class="calendar-container max-w-6xl mx-auto px-4 py-6">
@@ -23,7 +19,7 @@ function isUnlocked(day: number): boolean {
 	</div>
 	<div class="calendar-grid">
 		{days.map((d) => {
-			const unlocked = isUnlocked(d.day);
+			const unlocked = isDayUnlocked(d.day);
 			return (
 				<button
 					class="day-box"
@@ -31,12 +27,12 @@ function isUnlocked(day: number): boolean {
 					aria-label={
 						unlocked
 							? `Día ${d.day}, cajita disponible`
-							: `Día ${d.day}, se abre el ${d.day} de diciembre`
+							: `Día ${d.day}, se abre el ${unlockMoment(d.day)}`
 					}
 					title={
 						unlocked
 							? '¡Ábrela!'
-							: `Se abre el ${d.day} de diciembre`
+							: `Se abre el ${unlockMoment(d.day)}`
 					}
 					disabled={!unlocked}
 				>
@@ -45,6 +41,10 @@ function isUnlocked(day: number): boolean {
 			);
 		})}
 	</div>
+
+	<p class="mt-6 text-center text-sm text-muted-foreground font-body">
+		Las cajitas se abren a las 9:00 a.m. (hora de Venezuela) del día que les toca.
+	</p>
 </div>
 
 <div
@@ -78,6 +78,8 @@ function isUnlocked(day: number): boolean {
 </div>
 
 <script>
+	import { isDayUnlocked, unlockMoment } from '../lib/gating';
+
 	const daysDataEl = document.getElementById('adviento-days');
 	const days = daysDataEl ? JSON.parse(daysDataEl.textContent || '[]') : [];
 
@@ -110,9 +112,7 @@ function isUnlocked(day: number): boolean {
 
 	function isUnlocked(day) {
 		if (UNLOCK_ALL) return true;
-		const now = new Date();
-		const unlock = new Date(now.getFullYear(), 11, day);
-		return now >= unlock;
+		return isDayUnlocked(day);
 	}
 
 	function updateBoxes() {
@@ -131,8 +131,8 @@ function isUnlocked(day: number): boolean {
 
 			if (!unlocked) {
 				btn.classList.add('day-box--locked');
-				btn.title = `Se abre el ${day} de diciembre`;
-				btn.ariaLabel = `Día ${day}, se abre el ${day} de diciembre`;
+				btn.title = `Se abre el ${unlockMoment(day)}`;
+				btn.ariaLabel = `Día ${day}, se abre el ${unlockMoment(day)}`;
 			} else {
 				btn.classList.add(
 					openedDay ? 'day-box--opened' : 'day-box--available'
@@ -272,4 +272,8 @@ function isUnlocked(day: number): boolean {
 	});
 
 	updateBoxes();
+
+	// Si la página queda abierta cuando llega la hora de apertura (9:00 a.m.
+	// hora de Venezuela), la cajita se desbloquea sola sin recargar.
+	setInterval(updateBoxes, 30_000);
 </script>
