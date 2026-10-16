@@ -3,18 +3,206 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout>
-	<div class="flex flex-col items-center justify-center min-h-screen gap-8 px-6 text-foreground">
-		<section class="max-w-2xl text-center space-y-4">
-			<h1 class="font-heading text-5xl md:text-7xl font-bold text-foreground tracking-tight">
-				Calendario de Adviento
-			</h1>
-			<p class="font-body text-lg text-muted-foreground">
-				24 días, 24 sorpresas. Abre una cajita cada día y descubre qué hay dentro.
-			</p>
-		</section>
-		<a href="/calendar" class="btn-primary">
-			Empezar
-			<span aria-hidden="true" class="ml-2">➡️</span>
-		</a>
+	<div class="landing-relative min-h-screen w-full overflow-hidden">
+		<!-- Capa mágica animada sobre el fondo -->
+		<div class="sky-magic inset-0 pointer-events-none z-0">
+			<!-- Trineo de Papá Noel volando -->
+			<svg
+				class="sleigh absolute top-[10%] left-[-180px] z-10"
+				width="220"
+				height="140"
+				viewBox="0 0 220 140"
+				aria-hidden="true"
+			>
+				<defs>
+					<filter id="sleigh-shadow" x="-50%" y="-50%" width="200%" height="200%">
+						<feGaussianBlur in="SourceAlpha" stdDeviation="4" />
+						<feOffset dx="2" dy="4" result="offsetblur" />
+						<feComponentTransfer>
+							<feFuncA type="linear" slope="0.35" />
+						</feComponentTransfer>
+						<feMerge>
+							<feMergeNode />
+							<feMergeNode in="SourceGraphic" />
+						</feMerge>
+					</filter>
+				</defs>
+				<!-- Trineo -->
+				<path
+					d="M 20 60 Q 40 70 70 60 L 90 55 L 110 60 Q 130 70 150 60 L 170 50 L 190 55 Q 200 65 180 75 L 40 85 Q 20 75 20 60 Z"
+					fill="#fff"
+					stroke="#0f172a"
+					stroke-width="3"
+					filter="url(#sleigh-shadow)"
+				/>
+				<!-- Asiento -->
+				<path d="M 50 60 L 140 60 L 140 70 L 50 70 Z" fill="#e2e8f0" stroke="#0f172a" stroke-width="2" />
+				<!-- Papá Noel -->
+				<circle cx="75" cy="50" r="14" fill="#fbbf24" />
+				<path d="M 65 45 Q 75 55 85 45" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round" />
+				<path d="M 70 52 Q 75 62 80 52" fill="none" stroke="#dc2626" stroke-width="3" stroke-linecap="round" />
+				<!-- Renos -->
+				<path d="M 110 55 L 130 65 L 125 75 L 115 65 Z" fill="#f1f5f9" stroke="#0f172a" stroke-width="2" />
+				<path d="M 135 55 L 155 65 L 150 75 L 140 65 Z" fill="#f1f5f9" stroke="#0f172a" stroke-width="2" />
+				<path d="M 160 55 L 180 65 L 175 75 L 165 65 Z" fill="#f1f5f9" stroke="#0f172a" stroke-width="2" />
+				<path d="M 185 55 L 205 65 L 200 75 L 190 65 Z" fill="#f1f5f9" stroke="#0f172a" stroke-width="2" />
+				<!-- Campanitas -->
+				<circle cx="100" cy="48" r="3" fill="#fbbf24" />
+				<circle cx="165" cy="48" r="3" fill="#fbbf24" />
+			</svg>
+
+			<!-- Nieve cayendo -->
+			<div class="snow absolute inset-0 z-20"></div>
+
+			<!-- Estrellas titilantes -->
+			<div class="stars absolute inset-0 z-20"></div>
+		</div>
+
+		<!-- Contenido principal -->
+		<div class="relative z-10 flex flex-col items-center justify-center min-h-screen gap-8 px-6 text-foreground">
+			<section class="max-w-2xl text-center space-y-4">
+				<h1 class="font-heading text-5xl md:text-7xl font-bold text-foreground tracking-tight">
+					Calendario de Adviento
+				</h1>
+				<p class="font-body text-lg text-muted-foreground">
+					24 días, 24 sorpresas. Abre una cajita cada día y descubre qué hay dentro.
+				</p>
+			</section>
+			<a href="/calendar" class="btn-primary">
+				Empezar
+				<span aria-hidden="true" class="ml-2">➡️</span>
+			</a>
+		</div>
 	</div>
 </Layout>
+
+<style>
+	.landing-relative {
+		position: relative;
+	}
+
+	.sky-magic {
+		position: absolute;
+		inset: 0;
+		overflow: hidden;
+	}
+
+	/* Trineo volando de derecha a izquierda con ligero vaivén */
+	.sleigh {
+		animation: sleigh-fly 12s linear infinite;
+		pointer-events: none;
+	}
+
+	@keyframes sleigh-fly {
+		0% {
+			transform: translateX(-260px) translateY(0) rotate(-2deg);
+		}
+		50% {
+			transform: translateX(calc(100vw + 50px)) translateY(-10px) rotate(2deg);
+		}
+		100% {
+			transform: translateX(-260px) translateY(0) rotate(-2deg);
+		}
+	}
+
+	/* Nieve generada por JS, animada por CSS */
+	.snow-flake {
+		position: absolute;
+		background: #ffffff;
+		border-radius: 50%;
+		pointer-events: none;
+		animation: snow-fall linear infinite;
+	}
+
+	@keyframes snow-fall {
+		0% {
+			transform: translateY(-10px) rotate(0deg);
+			opacity: 1;
+		}
+		100% {
+			transform: translateY(110vh) rotate(360deg);
+			opacity: 0.6;
+		}
+	}
+
+	/* Estrellas */
+	.star {
+		position: absolute;
+		background: #ffffff;
+		pointer-events: none;
+		animation: star-twinkle ease-in-out infinite;
+	}
+
+	@keyframes star-twinkle {
+		0%,
+		100% {
+			opacity: 0.4;
+			transform: scale(1);
+		}
+		50% {
+			opacity: 1;
+			transform: scale(1.3);
+		}
+	}
+
+	/* Respetar reducir movimiento */
+	@media (prefers-reduced-motion: reduce) {
+		.sleigh {
+			animation: none;
+			transform: translateX(-260px);
+		}
+		.snow-flake,
+		.star {
+			animation: none;
+			opacity: 0.3;
+		}
+	}
+</style>
+
+<script>
+	function createSnowflakes(count = 40) {
+		const snowContainer = document.querySelector('.snow');
+		if (!snowContainer) return;
+
+		for (let i = 0; i < count; i++) {
+			const flake = document.createElement('div');
+			flake.className = 'snow-flake';
+
+			const size = Math.random() * 5 + 2; // 2px a 7px
+			flake.style.width = `${size}px`;
+			flake.style.height = `${size}px`;
+			flake.style.left = `${Math.random() * 100}vw`;
+			flake.style.top = `${Math.random() * 100}vh`;
+			flake.style.opacity = Math.random() * 0.7 + 0.3;
+			flake.style.animationDuration = `${Math.random() * 3 + 2}s`; // 2-5s
+			flake.style.animationDelay = `${Math.random() * 5}s`;
+			flake.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+			snowContainer.appendChild(flake);
+		}
+	}
+
+	function createStars(count = 25) {
+		const starsContainer = document.querySelector('.stars');
+		if (!starsContainer) return;
+
+		for (let i = 0; i < count; i++) {
+			const star = document.createElement('div');
+			star.className = 'star';
+
+			const size = Math.random() * 3 + 1; // 1px a 4px
+			star.style.width = `${size}px`;
+			star.style.height = `${size}px`;
+			star.style.left = `${Math.random() * 100}vw`;
+			star.style.top = `${Math.random() * 40}vh`; // solo en la parte superior (cielo)
+			star.style.opacity = Math.random() * 0.6 + 0.2;
+			star.style.animationDuration = `${Math.random() * 2 + 2}s`; // 2-4s
+			star.style.animationDelay = `${Math.random() * 5}s`;
+
+			starsContainer.appendChild(star);
+		}
+	}
+
+	createSnowflakes();
+	createStars();
+</script>
