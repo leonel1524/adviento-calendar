@@ -87,7 +87,9 @@ const sparklesHTML = createSparkles(12);
 	</div>
 </Layout>
 
-<style>
+/* is:global: los elementos inyectados con set:html no llevan el atributo
+   data-astro-cid de Astro, así que necesitan reglas globales para aplicar */
+<style is:global>
 	.magic-layer {
 		position: fixed;
 		top: 0;
