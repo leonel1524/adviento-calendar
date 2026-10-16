@@ -13,35 +13,42 @@ export interface AdvientoDay {
 export const days: AdvientoDay[] = [
   {
     day: 1,
-    title: '¡Empieza la magia!',
+    title: '¡Bienvenida, diciembre!',
     blocks: [
       {
         type: 'text',
         text:
-          'Hoy se abre la primera cajita. Que diciembre te traiga calma, calor y muchas sonrisas. ¡Feliz inicio de adviento!',
+          'Empieza el adviento. Hoy no se trata de regalos grandes, sino de abrir el corazón a lo que viene. Que este primer día te encuentre con calma y ganas de disfrutar lo sencillo.',
       },
     ],
   },
   {
     day: 2,
-    title: 'Un abrazo para vos',
+    title: 'Un abrazo pendiente',
     blocks: [
       {
         type: 'text',
         text:
-          'Este día es para recordarte que hay alguien que te quiere muy cerca, aunque la distancia se interponga.',
+          'Piensa en esa persona a la que hace tiempo no abrazas. Llámala, escríbele o dile lo que sientas cuando se vean. Un abrazo dice más que mil palabras.',
       },
     ],
   },
   {
     day: 3,
-    title: 'Receta secreta',
+    title: 'Tu canción de diciembre',
     blocks: [
       {
         type: 'text',
         text:
-          'La mejor comida de estas fechas es la que se comparte. Prepara algo rico y sé feliz haciéndolo.',
+          'Busca esa canción que te transporta a otra época. Ponla fuerte, cierra los ojos y déjala sonar. La música es una máquina del tiempo que siempre funciona.',
       },
+      // Ejemplo de bloque mixto (descomenta y ajusta la ruta cuando tengas la imagen):
+      // {
+      //   type: 'image',
+      //   src: '/src/assets/tu-imagen-dia3.jpg',
+      //   alt: 'Disco de vinilo sobre una mesa de madera',
+      //   caption: 'Tu canción favorita, en vinilo.',
+      // },
     ],
   },
   {

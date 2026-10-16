@@ -13,6 +13,14 @@ function isUnlocked(day: number): boolean {
 ---
 
 <div class="calendar-container max-w-6xl mx-auto px-4 py-6">
+	<div
+		id="adviento-test-banner"
+		class="mb-4 flex justify-center hidden"
+	>
+		<span class="text-xs font-bold uppercase tracking-wider bg-accent text-black px-3 py-1 rounded-full">
+			modo prueba: todo desbloqueado
+		</span>
+	</div>
 	<div class="calendar-grid">
 		{days.map((d) => {
 			const unlocked = isUnlocked(d.day);
@@ -94,7 +102,14 @@ function isUnlocked(day: number): boolean {
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
 	}
 
+	const UNLOCK_ALL = new URLSearchParams(location.search).get('unlock') === 'all';
+	if (UNLOCK_ALL) {
+		const banner = document.getElementById('adviento-test-banner');
+		if (banner) banner.classList.remove('hidden');
+	}
+
 	function isUnlocked(day) {
+		if (UNLOCK_ALL) return true;
 		const now = new Date();
 		const unlock = new Date(now.getFullYear(), 11, day);
 		return now >= unlock;
