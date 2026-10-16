@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { path } from '../lib/paths';
 
 // --- Generar elementos mágicos en el servidor ---
 function randomRange(min: number, max: number): number {
@@ -154,7 +155,7 @@ const sparklesHTML = createSparkles(12);
 				24 días, 24 sorpresas. Abre una cajita cada día y descubre qué hay dentro.
 			</p>
 		</section>
-		<a href="/calendar" class="btn-primary">
+		<a href={path('calendar')} class="btn-primary">
 			Empezar
 			<span aria-hidden="true" class="ml-2">➡️</span>
 		</a>
