@@ -15,9 +15,11 @@ import { days } from '../data/days';
 			</p>
 		</div>
 
-		<script id="adviento-days" type="application/json">
-			{JSON.stringify(days)}
-		</script>
+		<script
+			id="adviento-days"
+			type="application/json"
+			set:html={JSON.stringify(days)}
+		/>
 
 		<Grid days={days} />
 	</div>
