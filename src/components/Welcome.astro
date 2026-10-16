@@ -1,48 +1,113 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+// --- Generar elementos mágicos en el servidor ---
+function randomRange(min: number, max: number): number {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomFloat(min: number, max: number): number {
+	return Math.random() * (max - min) + min;
+}
+
+function createSnowflakes(count: number) {
+	const flakes: string[] = [];
+	for (let i = 0; i < count; i++) {
+		const size = randomFloat(2, 7);
+		const left = randomFloat(0, 100);
+		const top = randomFloat(0, 100);
+		const opacity = randomFloat(0.2, 0.8);
+		const duration = randomFloat(3, 7);
+		const delay = randomFloat(0, 5);
+		flakes.push(
+			`<div class="snow-flake" style="width:${size}px;height:${size}px;left:${left}vw;top:${top}vh;opacity:${opacity};animation-duration:${duration}s;animation-delay:${delay}s"></div>`
+		);
+	}
+	return flakes.join('');
+}
+
+function createStars(count: number) {
+	const stars: string[] = [];
+	for (let i = 0; i < count; i++) {
+		const size = randomFloat(1, 4);
+		const left = randomFloat(0, 100);
+		const top = randomFloat(0, 50);
+		const opacity = randomFloat(0.2, 0.8);
+		const duration = randomFloat(2, 5);
+		const delay = randomFloat(0, 5);
+		stars.push(
+			`<div class="star" style="width:${size}px;height:${size}px;left:${left}vw;top:${top}vh;opacity:${opacity};animation-duration:${duration}s;animation-delay:${delay}s"></div>`
+		);
+	}
+	return stars.join('');
+}
+
+function createSparkles(count: number) {
+	const sparkles: string[] = [];
+	for (let i = 0; i < count; i++) {
+		const size = randomFloat(5, 15);
+		const left = randomFloat(0, 100);
+		const top = randomFloat(0, 100);
+		const duration = randomFloat(3, 7);
+		const delay = randomFloat(0, 5);
+		sparkles.push(
+			`<div class="sparkle" style="width:${size}px;height:${size}px;left:${left}vw;top:${top}vh;animation-duration:${duration}s;animation-delay:${delay}s"></div>`
+		);
+	}
+	return sparkles.join('');
+}
+
+const snowHTML = createSnowflakes(45);
+const starsHTML = createStars(30);
+const sparklesHTML = createSparkles(12);
 ---
 
 <Layout>
-	<div class="landing-relative min-h-screen w-full overflow-hidden">
-		<!-- Capa mágica animada sobre el fondo (Santa ya viene en bg.jpg) -->
-		<div class="sky-magic inset-0 pointer-events-none z-0">
-			<!-- Nieve cayendo -->
-			<div class="snow-container absolute inset-0 z-10"></div>
+	<!-- Capa mágica fija sobre todo el viewport (detrás del contenido) -->
+	<div class="magic-layer fixed inset-0 z-0 pointer-events-none overflow-hidden">
+		<div class="snow-container fixed inset-0" set:html={snowHTML}></div>
+		<div class="stars-container fixed inset-0" set:html={starsHTML}></div>
+		<div class="sparkles-container fixed inset-0" set:html={sparklesHTML}></div>
+	</div>
 
-			<!-- Estrellas titilantes -->
-			<div class="stars-container absolute inset-0 z-10"></div>
-
-			<!-- Partículas de brillo mágico -->
-			<div class="sparkles-container absolute inset-0 z-10"></div>
-		</div>
-
-		<!-- Contenido principal -->
-		<div class="relative z-20 flex flex-col items-center justify-center min-h-screen gap-8 px-6 text-foreground">
-			<section class="max-w-2xl text-center space-y-4">
-				<h1 class="font-heading text-5xl md:text-7xl font-bold text-foreground tracking-tight drop-shadow-md">
-					Calendario de Adviento
-				</h1>
-				<p class="font-body text-lg text-muted-foreground drop-shadow-sm">
-					24 días, 24 sorpresas. Abre una cajita cada día y descubre qué hay dentro.
-				</p>
-			</section>
-			<a href="/calendar" class="btn-primary">
-				Empezar
-				<span aria-hidden="true" class="ml-2">➡️</span>
-			</a>
-		</div>
+	<!-- Contenido principal -->
+	<div class="relative z-10 flex flex-col items-center justify-center min-h-screen w-full gap-8 px-6 text-foreground">
+		<section class="max-w-2xl text-center space-y-4">
+			<h1 class="font-heading text-5xl md:text-7xl font-bold text-foreground tracking-tight drop-shadow-md">
+				Calendario de Adviento
+			</h1>
+			<p class="font-body text-lg text-muted-foreground drop-shadow-sm">
+				24 días, 24 sorpresas. Abre una cajita cada día y descubre qué hay dentro.
+			</p>
+		</section>
+		<a href="/calendar" class="btn-primary">
+			Empezar
+			<span aria-hidden="true" class="ml-2">➡️</span>
+		</a>
 	</div>
 </Layout>
 
 <style>
-	.landing-relative {
-		position: relative;
+	.magic-layer {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		overflow: hidden;
+		z-index: 0;
+		pointer-events: none;
 	}
 
-	.sky-magic {
-		position: absolute;
-		inset: 0;
-		overflow: hidden;
+	.snow-container,
+	.stars-container,
+	.sparkles-container {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		pointer-events: none;
 	}
 
 	/* --- Nieve --- */
@@ -114,7 +179,6 @@ import Layout from '../layouts/Layout.astro';
 		}
 	}
 
-	/* Reducir movimiento */
 	@media (prefers-reduced-motion: reduce) {
 		.snow-flake,
 		.star,
@@ -124,80 +188,3 @@ import Layout from '../layouts/Layout.astro';
 		}
 	}
 </style>
-
-<script>
-	// Espera a que el DOM esté listo (importante en build estático de Astro)
-	function initMagic() {
-		createSnowflakes(45);
-		createStars(30);
-		createSparkles(12);
-	}
-
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', initMagic);
-	} else {
-		initMagic();
-	}
-
-	function createSnowflakes(count) {
-		const container = document.querySelector('.snow-container');
-		if (!container) return;
-
-		for (let i = 0; i < count; i++) {
-			const flake = document.createElement('div');
-			flake.className = 'snow-flake';
-
-			const size = Math.random() * 5 + 2;
-			flake.style.width = `${size}px`;
-			flake.style.height = `${size}px`;
-			flake.style.left = `${Math.random() * 100}vw`;
-			flake.style.top = `${Math.random() * 100}vh`;
-			flake.style.opacity = Math.random() * 0.6 + 0.2;
-			flake.style.animationDuration = `${Math.random() * 4 + 3}s`; // 3-7s
-			flake.style.animationDelay = `${Math.random() * 5}s`;
-
-			container.appendChild(flake);
-		}
-	}
-
-	function createStars(count) {
-		const container = document.querySelector('.stars-container');
-		if (!container) return;
-
-		for (let i = 0; i < count; i++) {
-			const star = document.createElement('div');
-			star.className = 'star';
-
-			const size = Math.random() * 3 + 1;
-			star.style.width = `${size}px`;
-			star.style.height = `${size}px`;
-			star.style.left = `${Math.random() * 100}vw`;
-			star.style.top = `${Math.random() * 50}vh`;
-			star.style.opacity = Math.random() * 0.6 + 0.2;
-			star.style.animationDuration = `${Math.random() * 3 + 2}s`;
-			star.style.animationDelay = `${Math.random() * 5}s`;
-
-			container.appendChild(star);
-		}
-	}
-
-	function createSparkles(count) {
-		const container = document.querySelector('.sparkles-container');
-		if (!container) return;
-
-		for (let i = 0; i < count; i++) {
-			const sparkle = document.createElement('div');
-			sparkle.className = 'sparkle';
-
-			const size = Math.random() * 10 + 5;
-			sparkle.style.width = `${size}px`;
-			sparkle.style.height = `${size}px`;
-			sparkle.style.left = `${Math.random() * 100}vw`;
-			sparkle.style.top = `${Math.random() * 100}vh`;
-			sparkle.style.animationDuration = `${Math.random() * 4 + 3}s`;
-			sparkle.style.animationDelay = `${Math.random() * 5}s`;
-
-			container.appendChild(sparkle);
-		}
-	}
-</script>
