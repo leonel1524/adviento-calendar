@@ -1,11 +1,24 @@
 ---
 import Grid from '../components/Grid.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import { days } from '../data/days';
 ---
 
 <Layout>
-	<Grid />
+	<div class="calendar-container max-w-6xl mx-auto px-4">
+		<div class="text-center mb-8">
+			<h1 class="font-heading text-4xl md:text-5xl font-bold text-foreground mb-2">
+				Calendario de Adviento
+			</h1>
+			<p class="font-body text-lg text-muted-foreground">
+				Un regalo cada día hasta Navidad
+			</p>
+		</div>
+
+		<script id="adviento-days" type="application/json">
+			{JSON.stringify(days)}
+		</script>
+
+		<Grid days={days} />
+	</div>
 </Layout>

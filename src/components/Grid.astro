@@ -1,67 +1,260 @@
 ---
+interface Props {
+	days: import('../data/days').AdvientoDay[];
+}
 
+const { days } = Astro.props;
+
+function isUnlocked(day: number): boolean {
+	const now = new Date();
+	const unlock = new Date(now.getFullYear(), 11, day); // diciembre = mes 11
+	return now >= unlock;
+}
 ---
-<div class="container">
-  <div class="sideLeft">
-    {Array.from({ length: 12 }).map((_, i) => (
-      <div class="small-box" id={`left-${i}`}>{i+1}</div>
-    ))}
-  </div>
-  <div class="center-box">
-    Sigue a Papá Noel
-  </div>
-  <div class="sideRight">
-    {Array.from({ length: 12 }).map((_, i) => (
-      <div class="small-box" id={`right-${i}`}>{i+13}</div>
-    ))}
-  </div>
+
+<div class="calendar-container max-w-6xl mx-auto px-4 py-6">
+	<div class="calendar-grid">
+		{days.map((d) => {
+			const unlocked = isUnlocked(d.day);
+			return (
+				<button
+					class="day-box"
+					data-day={d.day}
+					aria-label={
+						unlocked
+							? `Día ${d.day}, cajita disponible`
+							: `Día ${d.day}, se abre el ${d.day} de diciembre`
+					}
+					title={
+						unlocked
+							? '¡Ábrela!'
+							: `Se abre el ${d.day} de diciembre`
+					}
+					disabled={!unlocked}
+				>
+					{d.day}
+				</button>
+			);
+		})}
+	</div>
 </div>
-<style>
-.container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  gap: 2rem;
-}
-.side {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.sideLeft, .sideRight {
-  display: flex;
-  flex-direction: row;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  width: 40%;
-  justify-content: center;
-}
-.small-box {
-  width: 200px;
-  height: 200px;
-  background: #eee;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  font-size: 4rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Lobster';
-}
-.center-box {
-  width: 400px;
-  height: 400px;
-  background: #b3e5fc;
-  border: 3px solid #0288d1;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 5rem;
-  font-weight: bold;
-  color: #0288d1;
-  text-align: center;
-  font-family: 'Lobster';
-}
-</style>
+
+<div
+	id="adviento-modal"
+	class="modal"
+	role="dialog"
+	aria-modal="true"
+	aria-labelledby="adviento-modal-title"
+	aria-hidden="true"
+>
+	<div class="modal-scrim"></div>
+	<div class="modal-panel">
+		<button
+			id="adviento-modal-close"
+			class="modal-close"
+			aria-label="Cerrar"
+		>
+			&times;
+		</button>
+		<h2
+			id="adviento-modal-title"
+			class="font-heading text-2xl md:text-3xl font-bold text-foreground mb-4"
+		>
+			Día 1
+		</h2>
+		<div
+			id="adviento-modal-content"
+			class="space-y-4 text-foreground font-body"
+		></div>
+	</div>
+</div>
+
+<script>
+	const daysDataEl = document.getElementById('adviento-days');
+	const days = daysDataEl ? JSON.parse(daysDataEl.textContent || '[]') : [];
+
+	const modal = document.getElementById('adviento-modal');
+	const modalTitle = document.getElementById('adviento-modal-title');
+	const modalContent = document.getElementById('adviento-modal-content');
+	const modalClose = document.getElementById('adviento-modal-close');
+	const modalScrim = document.querySelector('.modal-scrim');
+
+	let lastFocused = null;
+	const STORAGE_KEY = 'adviento-opened-days';
+
+	function getOpened() {
+		try {
+			return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+		} catch {
+			return [];
+		}
+	}
+
+	function saveOpened(arr) {
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+	}
+
+	function isUnlocked(day) {
+		const now = new Date();
+		const unlock = new Date(now.getFullYear(), 11, day);
+		return now >= unlock;
+	}
+
+	function updateBoxes() {
+		const opened = getOpened();
+		document.querySelectorAll('[data-day]').forEach((btn) => {
+			const day = Number(btn.dataset.day);
+			const unlocked = isUnlocked(day);
+			const openedDay = opened.includes(day);
+
+			btn.classList.remove(
+				'day-box--locked',
+				'day-box--available',
+				'day-box--opened'
+			);
+			btn.disabled = !unlocked;
+
+			if (!unlocked) {
+				btn.classList.add('day-box--locked');
+				btn.title = `Se abre el ${day} de diciembre`;
+				btn.ariaLabel = `Día ${day}, se abre el ${day} de diciembre`;
+			} else {
+				btn.classList.add(
+					openedDay ? 'day-box--opened' : 'day-box--available'
+				);
+				btn.title = openedDay
+					? 'Ya está abierta'
+					: '¡Ábrela!';
+				btn.ariaLabel = openedDay
+					? `Día ${day}, ya abierta`
+					: `Día ${day}, cajita disponible`;
+			}
+		});
+	}
+
+	function renderContent(day) {
+		const d = days.find((x) => x.day === day);
+		if (!d) return;
+
+		modalTitle.textContent = d.title
+			? `Día ${d.day} — ${d.title}`
+			: `Día ${d.day}`;
+
+		modalContent.innerHTML = '';
+
+		d.blocks.forEach((block) => {
+			if (block.type === 'text') {
+				const p = document.createElement('p');
+				p.textContent = block.text;
+				p.className = 'mb-3 leading-relaxed';
+				modalContent.appendChild(p);
+			} else if (block.type === 'image') {
+				const figure = document.createElement('figure');
+				figure.className = 'my-4';
+				const img = document.createElement('img');
+				img.src = block.src;
+				img.alt = block.alt;
+				img.className =
+					'w-full max-w-md mx-auto rounded-xl border border-border shadow-sm';
+				figure.appendChild(img);
+				if (block.caption) {
+					const figcap = document.createElement('figcaption');
+					figcap.textContent = block.caption;
+					figcap.className =
+						'text-center text-sm text-muted-foreground mt-2';
+					figure.appendChild(figcap);
+				}
+				modalContent.appendChild(figure);
+			} else if (block.type === 'video') {
+				const video = document.createElement('video');
+				video.controls = true;
+				video.src = block.src;
+				if (block.poster) video.poster = block.poster;
+				video.className = 'w-full max-w-md mx-auto rounded-xl border border-border';
+				modalContent.appendChild(video);
+			} else if (block.type === 'audio') {
+				const audio = document.createElement('audio');
+				audio.controls = true;
+				audio.src = block.src;
+				audio.className = 'w-full max-w-md mx-auto';
+				modalContent.appendChild(audio);
+			}
+		});
+	}
+
+	function openModal(day) {
+		lastFocused = document.activeElement;
+		renderContent(day);
+		modal.classList.add('modal--open');
+		modal.setAttribute('aria-hidden', 'false');
+		modalClose.focus();
+
+		document.addEventListener('keydown', handleKeydown);
+		setupFocusTrap();
+	}
+
+	function closeModal() {
+		modal.classList.remove('modal--open');
+		modal.setAttribute('aria-hidden', 'true');
+		document.removeEventListener('keydown', handleKeydown);
+		if (lastFocused) lastFocused.focus();
+		lastFocused = null;
+	}
+
+	function handleKeydown(e) {
+		if (e.key === 'Escape') closeModal();
+	}
+
+	function setupFocusTrap() {
+		const focusables = modal.querySelectorAll(
+			'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+		);
+		const first = focusables[0];
+		const last = focusables[focusables.length - 1];
+
+		const onTab = (e) => {
+			if (e.key !== 'Tab') return;
+			if (e.shiftKey) {
+				if (document.activeElement === first) {
+					e.preventDefault();
+					last.focus();
+				}
+			} else {
+				if (document.activeElement === last) {
+					e.preventDefault();
+					first.focus();
+				}
+			}
+		};
+
+		modal.addEventListener('keydown', onTab);
+		// Cleanup listener cuando se cierre
+		const originalClose = closeModal;
+		closeModal = function () {
+			modal.removeEventListener('keydown', onTab);
+			originalClose();
+		};
+	}
+
+	document.querySelectorAll('[data-day]').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			if (btn.disabled) return;
+			const day = Number(btn.dataset.day);
+			openModal(day);
+
+			const opened = getOpened();
+			if (!opened.includes(day)) {
+				opened.push(day);
+				saveOpened(opened);
+				updateBoxes();
+			}
+		});
+	});
+
+	modalClose.addEventListener('click', closeModal);
+	modal.addEventListener('click', (e) => {
+		if (e.target === modal || e.target === modalScrim) closeModal();
+	});
+
+	updateBoxes();
+</script>

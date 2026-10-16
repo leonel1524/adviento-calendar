@@ -1,12 +1,20 @@
 ---
-//import "../styles/global.css";
+import Layout from '../layouts/Layout.astro';
 ---
 
-<div class="flex flex-row flex-wrap flex-auto min-h-full" id="container">
-  <section class="mx-auto max-w-3xl gap-x-4 rounded-xl bg-white p-6 shadow-lg outline outline-black/5 dark:bg-slate-800 dark:shadow-none dark:-outline-offset-1 dark:outline-white/10" id="hero">
-    <h1 class="text-7xl font-medium text-black dark:text-white">
-      Calendario de Adviento hecho Por Leonel Matos
-    </h1>
-  </section>
-  <button class="btn-primary">Empezar ➡️</button>
-</div>
+<Layout>
+	<div class="flex flex-col items-center justify-center min-h-screen gap-8 px-6 text-foreground">
+		<section class="max-w-2xl text-center space-y-4">
+			<h1 class="font-heading text-5xl md:text-7xl font-bold text-foreground tracking-tight">
+				Calendario de Adviento
+			</h1>
+			<p class="font-body text-lg text-muted-foreground">
+				24 días, 24 sorpresas. Abre una cajita cada día y descubre qué hay dentro.
+			</p>
+		</section>
+		<a href="/calendar" class="btn-primary">
+			Empezar
+			<span aria-hidden="true" class="ml-2">➡️</span>
+		</a>
+	</div>
+</Layout>
